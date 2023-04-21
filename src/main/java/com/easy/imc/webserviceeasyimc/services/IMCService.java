@@ -5,8 +5,7 @@ import org.springframework.stereotype.Service;
 
 public class IMCService {
 
-    public static IMC getValue(IMC imc){
-        imc.value = imc.poids / (imc.taille * imc.taille);
-        return imc;
+    public static double getValue(double poids, double taille){
+        return poids / (taille * taille);
     }
 }
