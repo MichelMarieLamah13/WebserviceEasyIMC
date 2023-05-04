@@ -1,13 +1,13 @@
-package com.easy.imc.webserviceeasyimc.models;
+package com.easy.imc.webserviceeasyimc.entities;
 
 import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class IMCResponse {
+public class IMCResponse<T> {
     public String message;
-    public List<Object> values;
+    public List<T> values;
     public int status;
     public String name;
 

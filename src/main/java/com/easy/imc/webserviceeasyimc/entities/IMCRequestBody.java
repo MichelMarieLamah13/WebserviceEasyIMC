@@ -1,4 +1,4 @@
-package com.easy.imc.webserviceeasyimc.models;
+package com.easy.imc.webserviceeasyimc.entities;
 
 public class IMCRequestBody {
     public double poids;

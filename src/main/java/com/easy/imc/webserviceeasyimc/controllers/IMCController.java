@@ -1,27 +1,27 @@
 package com.easy.imc.webserviceeasyimc.controllers;
 
-import com.easy.imc.webserviceeasyimc.models.IMC;
-import com.easy.imc.webserviceeasyimc.models.IMCResponse;
-import com.easy.imc.webserviceeasyimc.models.User;
+import com.easy.imc.webserviceeasyimc.entities.IMC;
+import com.easy.imc.webserviceeasyimc.entities.IMCResponse;
+import com.easy.imc.webserviceeasyimc.entities.User;
+import com.easy.imc.webserviceeasyimc.models.HistoryModel;
+import com.easy.imc.webserviceeasyimc.services.HistoryService;
 import com.easy.imc.webserviceeasyimc.services.IMCService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/imc")
 public class IMCController {
 
-    @GetMapping
-    public IMCResponse getIMC(@RequestParam("poids") double poids, @RequestParam("taille") double taille, @RequestBody User user){
-        IMC imc = new IMC(taille, poids);
-        imc.value = IMCService.getValue(poids, taille);
-        IMCResponse res = new IMCResponse();
+    @PostMapping
+    public IMCResponse<HistoryModel> getIMC(@RequestBody IMC imc){
+        IMC nImc = IMCService.getValue(imc);
+        IMCResponse<HistoryModel> res = HistoryService.create(nImc);
         res.message = "Calcul de l'imc";
-        res.status = HttpStatus.OK.value();
-        res.name = HttpStatus.OK.name();
-        res.values.add(imc);
         return res;
     }
 }

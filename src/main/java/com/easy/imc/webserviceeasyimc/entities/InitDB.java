@@ -1,9 +1,18 @@
-package com.easy.imc.webserviceeasyimc.models;
+package com.easy.imc.webserviceeasyimc.entities;
 
+import com.easy.imc.webserviceeasyimc.models.CategoryModel;
+import com.easy.imc.webserviceeasyimc.models.HistoryModel;
+import com.easy.imc.webserviceeasyimc.models.UnitePoidsModel;
+import com.easy.imc.webserviceeasyimc.models.UniteTailleModel;
+import com.easy.imc.webserviceeasyimc.services.CategoryService;
 import com.easy.imc.webserviceeasyimc.services.IMCService;
+import com.easy.imc.webserviceeasyimc.services.UnitePoidsService;
+import com.easy.imc.webserviceeasyimc.services.UniteTailleService;
 import com.github.javafaker.Faker;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +32,8 @@ public class InitDB {
     public static int idObesiteII = 5;
     public static int idObesiteIII = 6;
 
+    public static UniteTaille defaultUniteTaille = new UniteTaille(1,"m", 1);
+    public static UnitePoids defaultUnitePoids = new UnitePoids(1, "kg", 1);
     private Faker faker = new Faker();
 
     public InitDB() {
@@ -30,9 +41,9 @@ public class InitDB {
         createCategories();
         createConseils();
         createDescriptions();
-        createHistories();
         createUnitePoids();
         createUniteTaille();
+        createHistories();
     }
 
     private void createUsers(){
@@ -57,8 +68,8 @@ public class InitDB {
         poidsInsuffisant.title = "Poids Insuffisant";
         poidsInsuffisant.subtitle = "Maigreur";
         poidsInsuffisant.min = 0;
-        poidsInsuffisant.max = 18.5;
-        poidsInsuffisant.avatar = "category0"+idPoidsInsuffisant+".png";
+        poidsInsuffisant.max = 18.59;
+        poidsInsuffisant.avatar = "categorie0"+idPoidsInsuffisant+".png";
         categories.add(poidsInsuffisant);
 
 
@@ -66,9 +77,9 @@ public class InitDB {
         poidsNormal.id = idPoidsNormal;
         poidsNormal.title = "Poids Normal";
         poidsNormal.subtitle = "Corpulence Normale";
-        poidsNormal.min = 18.6;
-        poidsNormal.max = 24.9;
-        poidsNormal.avatar = "category0"+idPoidsNormal+".png";
+        poidsNormal.min = 18.60;
+        poidsNormal.max = 24.99;
+        poidsNormal.avatar = "categorie0"+idPoidsNormal+".png";
         categories.add(poidsNormal);
 
         Category surpoids = new Category();
@@ -76,8 +87,8 @@ public class InitDB {
         surpoids.title = "Surpoids";
         surpoids.subtitle = "Surpoids";
         surpoids.min = 25;
-        surpoids.max = 29.9;
-        surpoids.avatar = "category0"+idSurpoids+".png";
+        surpoids.max = 29.99;
+        surpoids.avatar = "categorie0"+idSurpoids+".png";
         categories.add(surpoids);
 
         Category obesiteI = new Category();
@@ -85,8 +96,8 @@ public class InitDB {
         obesiteI.title = "Obésite I";
         obesiteI.subtitle = "Obsésité Modérée";
         obesiteI.min = 30;
-        obesiteI.max = 34.9;
-        obesiteI.avatar = "category0"+idObesiteI+".png";
+        obesiteI.max = 34.99;
+        obesiteI.avatar = "categorie0"+idObesiteI+".png";
         categories.add(obesiteI);
 
         Category obesiteII = new Category();
@@ -94,8 +105,8 @@ public class InitDB {
         obesiteII.title = "Obésite II";
         obesiteII.subtitle = "Obsésité Sévère";
         obesiteII.min = 35;
-        obesiteII.max = 39.9;
-        obesiteII.avatar = "category0"+idObesiteII+".png";
+        obesiteII.max = 39.99;
+        obesiteII.avatar = "categorie0"+idObesiteII+".png";
         categories.add(obesiteII);
 
         Category obesiteIII = new Category();
@@ -104,7 +115,7 @@ public class InitDB {
         obesiteIII.subtitle = "Obsésité Morbide";
         obesiteIII.min = 40;
         obesiteIII.max = Double.POSITIVE_INFINITY;
-        obesiteIII.avatar = "category0"+idObesiteIII+".png";
+        obesiteIII.avatar = "categorie0"+idObesiteIII+".png";
         categories.add(obesiteIII);
 
     }
@@ -198,6 +209,33 @@ public class InitDB {
 
     }
 
+    private UnitePoids findUnitePoidsById(int id){
+        for (UnitePoids item:unitePoids) {
+            if(item.id == id){
+                return item;
+            }
+        }
+        return null;
+    }
+
+    private UniteTaille findUniteTailleById(int id){
+        for (UniteTaille item:uniteTailles) {
+            if(item.id == id){
+                return item;
+            }
+        }
+        return null;
+    }
+
+    private Category findCategoryByIMCValue(double value){
+        for (Category item:categories) {
+            if(value >= item.min && value<= item.max){
+                return item;
+            }
+        }
+        return null;
+    }
+
     private void createHistories(){
         histories = new ArrayList<>();
         int nbHistory = faker.random().nextInt(10, 50);
@@ -206,21 +244,35 @@ public class InitDB {
             h.idUser = faker.random().nextInt(1, users.size());
             h.poids = faker.random().nextInt(100, 200);
             h.taille = faker.number().randomDouble(2, 1, 2);
-            h.imc = IMCService.getValue(h.poids, h.taille);
+            h.idUnitePoids = faker.number().numberBetween(1, 2);
+            h.idUniteTaille = faker.number().numberBetween(1, 2);
+            UniteTaille uniteTaille = findUniteTailleById(h.idUniteTaille);
+            UnitePoids unitePoids = findUnitePoidsById(h.idUnitePoids);
+            if(uniteTaille != null && unitePoids!= null){
+                IMC nImc = new IMC(h.taille, h.poids, unitePoids, uniteTaille);
+                h.imc = IMCService.getValue(nImc).value;
+            }
+            String[] dt = Helper.getCurrentDateTime();
+            h.date = dt[0];
+            h.heure = dt[1];
+            Category category = findCategoryByIMCValue(h.imc);
+            if(category != null){
+                h.idCategory = category.id;
+            }
             histories.add(h);
         }
     }
 
     private void createUnitePoids(){
         unitePoids = new ArrayList<>();
-        unitePoids.add(new UnitePoids("kg", 1));
-        unitePoids.add(new UnitePoids("g", 0.001));
+        unitePoids.add(new UnitePoids(1, "kg", 1));
+        unitePoids.add(new UnitePoids(2, "g", 0.001));
     }
 
     private void createUniteTaille(){
         uniteTailles = new ArrayList<>();
-        uniteTailles.add(new UniteTaille("m", 1));
-        uniteTailles.add(new UniteTaille("cm", 0.01));
+        uniteTailles.add(new UniteTaille(1,"m", 1));
+        uniteTailles.add(new UniteTaille(2,"cm", 0.01));
     }
 
 }

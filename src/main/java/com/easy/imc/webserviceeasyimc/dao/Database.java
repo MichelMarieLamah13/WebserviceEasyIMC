@@ -1,6 +1,6 @@
 package com.easy.imc.webserviceeasyimc.dao;
 
-import com.easy.imc.webserviceeasyimc.models.IMCResponse;
+import com.easy.imc.webserviceeasyimc.entities.IMCResponse;
 import org.springframework.http.HttpStatus;
 
 import java.sql.Connection;
@@ -45,6 +45,7 @@ public class Database {
                 "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
                 "login TEXT," +
                 "password TEXT," +
+                "role INT," +
                 "avatar TEXT)";
         return Database.execute(query, Table.USERS);
     }
@@ -56,7 +57,15 @@ public class Database {
                 "poids REAL," +
                 "taille REAL,"+
                 "imc REAL," +
-                "FOREIGN KEY (idUser) REFERENCES "+Table.USERS.getValue()+" (id) )";
+                "date TEXT," +
+                "heure TEXT," +
+                "idUnitePoids INTEGER,"+
+                "idUniteTaille INTEGER,"+
+                "idCategory INTEGER," +
+                "FOREIGN KEY (idUser) REFERENCES "+Table.USERS.getValue()+" (id)," +
+                "FOREIGN KEY (idUnitePoids) REFERENCES "+Table.UNITE_POIDS.getValue()+" (id)," +
+                "FOREIGN KEY (idUniteTaille) REFERENCES "+Table.UNITE_TAILLE.getValue()+" (id)," +
+                "FOREIGN KEY (idCategory) REFERENCES "+Table.CATEGORIES.getValue()+" (id) )";
 
         return Database.execute(query, Table.HISTORIES);
     }
