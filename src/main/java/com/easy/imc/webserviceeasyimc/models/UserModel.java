@@ -1,5 +1,6 @@
 package com.easy.imc.webserviceeasyimc.models;
 
+import com.easy.imc.webserviceeasyimc.entities.AgeCategorie;
 import com.easy.imc.webserviceeasyimc.entities.User;
 
 public class UserModel {
@@ -8,6 +9,10 @@ public class UserModel {
     public String password;
     public String avatar;
     public int role;
+
+    public int age;
+
+    public AgeCategorieModel ageCategorie;
 
     public UserModel() {
     }
@@ -20,8 +25,30 @@ public class UserModel {
         this.role = role;
     }
 
+    public UserModel(int id, String login, String password, String avatar, int role, int age) {
+        this.id = id;
+        this.login = login;
+        this.password = password;
+        this.avatar = avatar;
+        this.role = role;
+        this.age = age;
+    }
+
+    public UserModel(int id, String login, String password, String avatar, int role, int age, AgeCategorieModel ageCategorie) {
+        this.id = id;
+        this.login = login;
+        this.password = password;
+        this.avatar = avatar;
+        this.role = role;
+        this.age = age;
+        this.ageCategorie = ageCategorie;
+    }
+
     public User toEntity(){
-        return new User(id, login, password, avatar, role);
+        if(ageCategorie!=null){
+            return new User(id, login, password, avatar, role, age, ageCategorie.id);
+        }
+        return new User(id, login, password, avatar, role, age);
     }
 
     @Override
@@ -32,6 +59,7 @@ public class UserModel {
                 ", \"password\":\"" + password + '"' +
                 ", \"avatar\":\"" + avatar + '"' +
                 ", \"role\":" + role +
+                ", \"age\":" + age +
                 '}';
     }
 }

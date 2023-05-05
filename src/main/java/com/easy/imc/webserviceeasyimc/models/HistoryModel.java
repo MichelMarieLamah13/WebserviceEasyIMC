@@ -12,6 +12,8 @@ public class HistoryModel {
     public String heure;
     public CategoryModel category;
 
+    public boolean save = true;
+
     public HistoryModel() {
     }
 
@@ -28,6 +30,7 @@ public class HistoryModel {
                 ", \"date\":\"" + date + '"' +
                 ", \"heure\":\"" + heure + '"' +
                 ", \"category\":" + category +
+                ", \"save\":" + save +
                 '}';
     }
 }

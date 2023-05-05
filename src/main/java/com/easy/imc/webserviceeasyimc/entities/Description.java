@@ -27,7 +27,9 @@ public class Description {
         DescriptionModel model = new DescriptionModel(id, description);
         IMCResponse<CategoryModel> cr = new IMCResponse<>();
         if(cr.status == HttpStatus.OK.value()){
-            model.category = cr.values.get(0);
+            if(!cr.values.isEmpty()){
+                model.category = cr.values.get(0);
+            }
         }
         return model;
     }

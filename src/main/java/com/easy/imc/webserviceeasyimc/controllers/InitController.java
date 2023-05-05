@@ -24,6 +24,7 @@ public class InitController {
             res.values.add(Database.dropAllTables().message);
         }
 
+        res.values.add(Database.createAgeCategoriesTable().message);
         res.values.add(Database.createUsersTable().message);
         res.values.add(Database.createCategoriesTable().message);
         res.values.add(Database.createDescriptionsTable().message);
@@ -33,6 +34,7 @@ public class InitController {
         res.values.add(Database.createHistoriesTable().message);
 
         if(reset){
+            res.values.add(AgeCategorieService.initAgeCategorieTable(initDB.ageCategories).message);
             res.values.add(UserService.initUsersTable(initDB.users).message);
             res.values.add(CategoryService.initCategoriesTable(initDB.categories).message);
             res.values.add(ConseilService.initConseilsTable(initDB.conseils).message);

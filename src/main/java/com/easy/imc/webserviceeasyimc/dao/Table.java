@@ -7,7 +7,8 @@ public enum Table {
     HISTORIES("histories"),
     CONSEILS("conseils"),
     UNITE_POIDS("unitePoids"),
-    UNITE_TAILLE("uniteTailles");
+    UNITE_TAILLE("uniteTailles"),
+    AGE_CATEGORIES("ageCategories");
 
     private final String value;
     Table(String value){

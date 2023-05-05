@@ -24,7 +24,9 @@ public class Conseil {
         ConseilModel model = new ConseilModel(id,  conseil);
         IMCResponse<CategoryModel> cr = CategoryService.findById(idCategory);
         if(cr.status == HttpStatus.OK.value()){
-            model.category = cr.values.get(0);
+            if(!cr.values.isEmpty()){
+                model.category = cr.values.get(0);
+            }
         }
         return model;
     }

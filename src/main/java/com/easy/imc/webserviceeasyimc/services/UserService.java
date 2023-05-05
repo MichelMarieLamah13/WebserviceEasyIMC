@@ -5,6 +5,7 @@ import com.easy.imc.webserviceeasyimc.dao.Table;
 import com.easy.imc.webserviceeasyimc.entities.IMCResponse;
 import com.easy.imc.webserviceeasyimc.entities.User;
 import com.easy.imc.webserviceeasyimc.entities.UserRole;
+import com.easy.imc.webserviceeasyimc.models.AgeCategorieModel;
 import com.easy.imc.webserviceeasyimc.models.UserModel;
 import com.github.javafaker.Faker;
 import org.springframework.cglib.proxy.Factory;
@@ -40,7 +41,13 @@ public class UserService {
         Faker faker = new Faker();
         user.avatar = "user0"+faker.random().nextInt(1, 5)+".png";
         user.role = faker.random().nextInt(1, UserRole.values().length);
-        String query = "INSERT INTO "+ Table.USERS.getValue() +" (login, password, avatar, role) VALUES (?, ?, ?, ?)";
+        IMCResponse<AgeCategorieModel> ageResponse = AgeCategorieService.getAgeCategorieByAge(user.age);
+        if(ageResponse.status == HttpStatus.OK.value()){
+            if(!ageResponse.values.isEmpty()){
+                user.idAgeCategorie = ageResponse.values.get(0).id;
+            }
+        }
+        String query = "INSERT INTO "+ Table.USERS.getValue() +" (login, password, avatar, role, age, idAgeCategorie) VALUES (?, ?, ?, ?, ?, ?)";
         IMCResponse<UserModel> result = new IMCResponse<>();
         try (Connection connection = Database.connect()) {
             PreparedStatement statement = connection.prepareStatement(query);
@@ -48,6 +55,8 @@ public class UserService {
             statement.setString(2, user.password);
             statement.setString(3, user.avatar);
             statement.setInt(4, user.role);
+            statement.setInt(5, user.age);
+            statement.setInt(6, user.idAgeCategorie);
 
             int nbRows = statement.executeUpdate();
             List<UserModel> values = new ArrayList<>();
@@ -226,6 +235,15 @@ public class UserService {
         user.login = rs.getString("login");
         user.password = rs.getString("password");
         user.id = rs.getInt("id");
+        user.age = rs.getInt("age");
+
+        int idAgeCategorie = rs.getInt("idAgeCategorie");
+        IMCResponse<AgeCategorieModel> ur = AgeCategorieService.findById(idAgeCategorie);
+        if(ur.status == HttpStatus.OK.value()){
+            if(!ur.values.isEmpty()){
+                user.ageCategorie = ur.values.get(0);
+            }
+        }
         return user;
     }
 

@@ -45,8 +45,11 @@ public class Database {
                 "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
                 "login TEXT," +
                 "password TEXT," +
+                "age INT," +
+                "idAgeCategorie INT," +
                 "role INT," +
-                "avatar TEXT)";
+                "avatar TEXT," +
+                "FOREIGN KEY (idAgeCategorie) REFERENCES "+Table.AGE_CATEGORIES.getValue()+" (id) )";
         return Database.execute(query, Table.USERS);
     }
 
@@ -101,6 +104,18 @@ public class Database {
                 "avatar TEXT)";
 
         return Database.execute(query, Table.CATEGORIES);
+    }
+
+    public static IMCResponse createAgeCategoriesTable(){
+        String query = "CREATE TABLE IF NOT EXISTS "+Table.AGE_CATEGORIES.getValue()+" (" +
+                "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
+                "name TEXT," +
+                "minAge INTEGER," +
+                "maxAge INTEGER," +
+                "minVar REAL," +
+                "maxVar REAL)";
+
+        return Database.execute(query, Table.AGE_CATEGORIES);
     }
 
     public static IMCResponse createDescriptionsTable(){

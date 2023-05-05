@@ -24,6 +24,8 @@ public class History {
 
     public int idCategory;
 
+    public boolean save = true;
+
     public HistoryModel toHistoryModel(){
         HistoryModel history = new HistoryModel();
         history.poids = poids;
@@ -31,24 +33,33 @@ public class History {
         history.imc = imc;
         history.date = date;
         history.heure = heure;
+        history.save = save;
         IMCResponse<UserModel> ur = UserService.findById(idUser);
         if(ur.status == HttpStatus.OK.value()){
-            history.user = ur.values.get(0);
+            if(!ur.values.isEmpty()){
+                history.user = ur.values.get(0);
+            }
         }
 
         IMCResponse<CategoryModel> cr = CategoryService.findById(idCategory);
         if(cr.status == HttpStatus.OK.value()){
-            history.category = cr.values.get(0);
+            if(!cr.values.isEmpty()){
+                history.category = cr.values.get(0);
+            }
         }
 
         IMCResponse<UnitePoidsModel> upr = UnitePoidsService.findById(idUnitePoids);
         if(upr.status == HttpStatus.OK.value()){
-            history.unitePoids = upr.values.get(0);
+            if(!upr.values.isEmpty()){
+                history.unitePoids = upr.values.get(0);
+            }
         }
 
         IMCResponse<UniteTailleModel> utr = UniteTailleService.findById(idUniteTaille);
         if(utr.status == HttpStatus.OK.value()){
-            history.uniteTaille = utr.values.get(0);
+            if(!utr.values.isEmpty()){
+                history.uniteTaille = utr.values.get(0);
+            }
         }
         return history;
     }
@@ -66,6 +77,7 @@ public class History {
                 ", \"date\":\"" + date + '"' +
                 ", \"heure\":\"" + heure + '"' +
                 ", \"idCategory\":" + idCategory +
+                ", \"save\":" + save +
                 "}";
     }
 }

@@ -5,6 +5,7 @@ public class IMC {
     public double poids;
     public double value;
     public User user;
+    public boolean forMe = false;
     public UnitePoids unitePoids;
     public UniteTaille uniteTaille;
 
@@ -21,6 +22,14 @@ public class IMC {
         this.poids = poids;
         this.unitePoids = unitePoids;
         this.uniteTaille = uniteTaille;
+    }
+
+    public IMC(double taille, double poids, UnitePoids unitePoids, UniteTaille uniteTaille, boolean forMe) {
+        this.taille = taille;
+        this.poids = poids;
+        this.unitePoids = unitePoids;
+        this.uniteTaille = uniteTaille;
+        this.forMe = forMe;
     }
 
 
@@ -91,5 +100,13 @@ public class IMC {
 
     public void setUniteTaille(UniteTaille uniteTaille) {
         this.uniteTaille = uniteTaille;
+    }
+
+    public boolean isForMe() {
+        return forMe;
+    }
+
+    public void setForMe(boolean forMe) {
+        this.forMe = forMe;
     }
 }

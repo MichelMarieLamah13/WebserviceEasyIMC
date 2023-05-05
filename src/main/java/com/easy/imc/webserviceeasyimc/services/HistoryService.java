@@ -31,7 +31,7 @@ public class HistoryService {
     public static IMCResponse<HistoryModel> create(HistoryModel history){
         IMCResponse<HistoryModel> result = new IMCResponse<>();
         List<HistoryModel> values = new ArrayList<>();
-        if(history.user != null) {
+        if(history.save) {
             IMCResponse<UserModel> ur = UserService.login(history.user.toEntity());
             if(ur.status == HttpStatus.OK.value()){
                 history.user = ur.values.get(0);
@@ -93,7 +93,7 @@ public class HistoryService {
         String[] dt = Helper.getCurrentDateTime();
         history.date = dt[0];
         history.heure = dt[1];
-
+        history.save = imc.forMe;
         if(imc.user != null){
             history.user = imc.user.toUserModel();
         }
@@ -163,14 +163,18 @@ public class HistoryService {
             try {
                 int x =(int) history.poids;
                 if(x!=0){
+                    List<String> xPart = new ArrayList<>();
+
                     poidsPart = " ( poids BETWEEN "+x+" AND "+(x+1)+" )";
-                    queryPart.add(poidsPart);
+                    xPart.add(poidsPart);
 
                     taillePart = " ( taille BETWEEN "+x+" AND "+(x+1)+" )";
-                    queryPart.add(taillePart);
+                    xPart.add(taillePart);
 
                     imcPart = " ( imc BETWEEN "+x+" AND "+(x+1)+" )";
-                    queryPart.add(imcPart);
+                    xPart.add(imcPart);
+
+                    queryPart.add("( "+String.join(" OR ", xPart)+" )");
                 }
             } catch (NumberFormatException e) {
                 Logger.getAnonymousLogger().log(
@@ -202,7 +206,7 @@ public class HistoryService {
             }
 
             if(!queryPart.isEmpty()){
-                query += " AND ( "+String.join(" OR ", queryPart) + " ) ORDER BY id DESC";
+                query += " AND ( "+String.join(" AND ", queryPart) + " ) ORDER BY id DESC";
             }else{
                 query += " ORDER BY id DESC";
             }

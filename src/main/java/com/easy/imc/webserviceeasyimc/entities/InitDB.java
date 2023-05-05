@@ -1,9 +1,6 @@
 package com.easy.imc.webserviceeasyimc.entities;
 
-import com.easy.imc.webserviceeasyimc.models.CategoryModel;
-import com.easy.imc.webserviceeasyimc.models.HistoryModel;
-import com.easy.imc.webserviceeasyimc.models.UnitePoidsModel;
-import com.easy.imc.webserviceeasyimc.models.UniteTailleModel;
+import com.easy.imc.webserviceeasyimc.models.*;
 import com.easy.imc.webserviceeasyimc.services.CategoryService;
 import com.easy.imc.webserviceeasyimc.services.IMCService;
 import com.easy.imc.webserviceeasyimc.services.UnitePoidsService;
@@ -11,6 +8,8 @@ import com.easy.imc.webserviceeasyimc.services.UniteTailleService;
 import com.github.javafaker.Faker;
 import org.springframework.http.HttpStatus;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -25,6 +24,8 @@ public class InitDB {
     public  List<UnitePoids> unitePoids;
     public  List<UniteTaille> uniteTailles;
 
+    public  List<AgeCategorie> ageCategories;
+
     public static int idPoidsInsuffisant = 1;
     public static int idPoidsNormal = 2;
     public static int idSurpoids = 3;
@@ -37,6 +38,7 @@ public class InitDB {
     private Faker faker = new Faker();
 
     public InitDB() {
+        createAgeCategories();
         createUsers();
         createCategories();
         createConseils();
@@ -55,9 +57,73 @@ public class InitDB {
             user.login = faker.name().firstName();
             user.password = "123";
             user.avatar = "user0"+faker.random().nextInt(1, 5)+".png";
+            user.age = faker.random().nextInt(0, 130);
+            AgeCategorie ageCategorie = findAgeCategoryByAge(user.age);
+            if(ageCategorie != null){
+                user.idAgeCategorie = ageCategorie.id;
+            }
             user.role = faker.random().nextInt(1, UserRole.values().length);
             users.add(user);
         }
+    }
+
+    private void createAgeCategories(){
+        ageCategories = new ArrayList<>();
+
+        AgeCategorie nourisson = new AgeCategorie();
+        nourisson.id = 1;
+        nourisson.name = "Nourisson";
+        nourisson.minAge = 0;
+        nourisson.maxAge = 1;
+        nourisson.minVar = 0;
+        nourisson.maxVar = 0.25;
+        ageCategories.add(nourisson);
+
+        AgeCategorie enfant = new AgeCategorie();
+        enfant.id = 2;
+        enfant.name = "Enfant";
+        enfant.minAge = 2;
+        enfant.maxAge = 12;
+        enfant.minVar = 0.05;
+        enfant.maxVar = 0.075;
+        ageCategories.add(enfant);
+
+        AgeCategorie adolescent = new AgeCategorie();
+        adolescent.id = 3;
+        adolescent.name = "Adolescent";
+        adolescent.minAge = 13;
+        adolescent.maxAge = 18;
+        adolescent.minVar = 0.05;
+        adolescent.maxVar = 0.1;
+        ageCategories.add(adolescent);
+
+        AgeCategorie jeuneAdulte = new AgeCategorie();
+        jeuneAdulte.id = 4;
+        jeuneAdulte.name = "Jeune Adulte";
+        jeuneAdulte.minAge = 19;
+        jeuneAdulte.maxAge = 30;
+        jeuneAdulte.minVar = 0.01;
+        jeuneAdulte.maxVar = 0.05;
+        ageCategories.add(jeuneAdulte);
+
+        AgeCategorie adulte = new AgeCategorie();
+        adulte.id = 5;
+        adulte.name = "Adulte";
+        adulte.minAge = 31;
+        adulte.maxAge = 65;
+        adulte.minVar = 0;
+        adulte.maxVar = 0;
+        ageCategories.add(adulte);
+
+        AgeCategorie personneAgee = new AgeCategorie();
+        personneAgee.id = 6;
+        personneAgee.name = "Personne Agée";
+        personneAgee.minAge = 66;
+        personneAgee.maxAge = 120;
+        personneAgee.minVar = -0.03;
+        personneAgee.maxVar = -0.02;
+        ageCategories.add(personneAgee);
+
     }
 
     private void createCategories(){
@@ -209,6 +275,15 @@ public class InitDB {
 
     }
 
+    private AgeCategorie findAgeCategoryByAge(int age){
+        for (AgeCategorie item:ageCategories) {
+            if(item.minAge <= age && age <= item.maxAge){
+                return item;
+            }
+        }
+        return null;
+    }
+
     private UnitePoids findUnitePoidsById(int id){
         for (UnitePoids item:unitePoids) {
             if(item.id == id){
@@ -243,9 +318,19 @@ public class InitDB {
             History h = new History();
             h.idUser = faker.random().nextInt(1, users.size());
             h.poids = faker.random().nextInt(100, 200);
-            h.taille = faker.number().randomDouble(2, 1, 2);
-            h.idUnitePoids = faker.number().numberBetween(1, 2);
-            h.idUniteTaille = faker.number().numberBetween(1, 2);
+            History lastAdded = getLastHistoryAddedForUser(h.idUser);
+            UserModel userModel = getUserById(h.idUser);
+            if(lastAdded==null ){
+                h.taille = faker.number().randomDouble(2, 1, 2);
+            }else{
+                if(userModel!=null){
+                    int tMin = (int) Math.round(lastAdded.taille + userModel.ageCategorie.minVar);
+                    int tMax = (int) Math.round(lastAdded.taille + userModel.ageCategorie.maxVar);
+                    h.taille = faker.number().randomDouble(2, tMin, tMax);
+                }
+            }
+            h.idUnitePoids = 1;
+            h.idUniteTaille = 1;
             UniteTaille uniteTaille = findUniteTailleById(h.idUniteTaille);
             UnitePoids unitePoids = findUnitePoidsById(h.idUnitePoids);
             if(uniteTaille != null && unitePoids!= null){
@@ -262,6 +347,48 @@ public class InitDB {
             histories.add(h);
         }
     }
+
+    private UserModel getUserById(int id){
+        UserModel model = null;
+        for (User user: users ) {
+            if(user.id == id){
+                model = new UserModel();
+                model.id = id;
+                model.age = user.age;
+                model.role = user.role;
+                model.login = user.login;
+                model.password = user.password;
+                model.avatar = user.avatar;
+                AgeCategorie ageCategorie = getAgeCategoryById(user.idAgeCategorie);
+                if(ageCategorie != null){
+                    model.ageCategorie = ageCategorie.toModel();
+                }
+            }
+        }
+        return model;
+    }
+
+    private AgeCategorie getAgeCategoryById(int id){
+        AgeCategorie entity = null;
+        for (AgeCategorie ac:ageCategories) {
+            if(ac.id == id){
+                entity = ac;
+            }
+        }
+        return entity;
+    }
+
+    private History getLastHistoryAddedForUser(int id){
+        History history = null;
+        for (History h:histories) {
+            if(h.idUser == id){
+                history = h;
+            }
+        }
+        return history;
+    }
+
+
 
     private void createUnitePoids(){
         unitePoids = new ArrayList<>();
