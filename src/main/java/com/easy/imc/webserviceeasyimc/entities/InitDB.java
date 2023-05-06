@@ -323,7 +323,8 @@ public class InitDB {
             if(lastAdded==null ){
                 h.taille = faker.number().randomDouble(2, 1, 2);
             }else{
-                if(userModel!=null){
+                if(userModel!=null && userModel.ageCategorie!=null){
+
                     int tMin = (int) Math.round(lastAdded.taille + userModel.ageCategorie.minVar);
                     int tMax = (int) Math.round(lastAdded.taille + userModel.ageCategorie.maxVar);
                     h.taille = faker.number().randomDouble(2, tMin, tMax);
